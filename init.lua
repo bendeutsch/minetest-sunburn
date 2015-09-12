@@ -60,6 +60,9 @@ sunburn = {
         --[[
         name = {
             pending_dmg = 0.0,
+            burn_factor = 1.0,
+            damage_factor = 1.0,
+            heal_factor = 1.0,
         }
         ]]
     },
@@ -86,7 +89,12 @@ minetest.register_on_joinplayer(function(player)
     local name = player:get_player_name()
     local pl = M.players[name]
     if not pl then
-        M.players[name] = { pending_dmg = 0.0 }
+        M.players[name] = {
+            pending_dmg = 0.0,
+            burn_factor = 1.0,
+            damage_factor = 1.0,
+            heal_factor = 1.0,
+        }
         pl = M.players[name]
         M.hud_init(player)
     end
@@ -96,6 +104,9 @@ minetest.register_on_dieplayer(function(player)
     local name = player:get_player_name()
     local pl = M.players[name]
     pl.pending_dmg = 0.0
+    pl.burn_factor = 1.0
+    pl.damage_factor = 1.0
+    pl.heal_factor = 1.0
     local burn = 0
     PPA.set_value(player, "sunburn_sunburn", burn)
     M.hud_update(player, burn)
@@ -128,11 +139,18 @@ minetest.register_globalstep(function(dtime)
             end
 
             local bps = C.sunburn_for_light[light_now]
+            if bps > 0 then
+                bps = bps * pl.burn_factor
+            else
+                bps = bps * pl.heal_factor
+            end
             --print("Standing in " .. node.name .. " at light " .. light_now .. " taking " .. bps);
 
             local burn = PPA.get_value(player, "sunburn_sunburn")
 
-            burn = burn + bps; if burn < 0 then burn = 0 end
+            burn = burn + bps;
+            if burn <  0 then burn =  0 end
+            if burn > 20 then burn = 20 end
             --print("New burn "..burn)
             PPA.set_value(player, "sunburn_sunburn", burn)
 
@@ -140,8 +158,8 @@ minetest.register_globalstep(function(dtime)
 
             if burn > C.sunburn_threshold  and minetest.setting_getbool("enable_damage") then
                 local burn_overrun = burn - C.sunburn_threshold
-                pl.pending_dmg = pl.pending_dmg + burn_overrun * C.damage_per_sunburn
-                if pl.pending_dmg > 0.0 then
+                pl.pending_dmg = pl.pending_dmg + burn_overrun * C.damage_per_sunburn * pl.damage_factor
+                if pl.pending_dmg > 1.0 then
                     local dmg = math.floor(pl.pending_dmg)
                     --print("Deals "..dmg.." damage!")
                     pl.pending_dmg = pl.pending_dmg - dmg
@@ -152,3 +170,63 @@ minetest.register_globalstep(function(dtime)
         end
     end
 end)
+
+--[[
+
+API
+
+]]
+
+function M.get_sunburn(player)
+    return PPA.get_value(player, "sunburn_sunburn")
+end
+
+function M.set_sunburn(player, burn)
+    PPA.set_value(player, "sunburn_sunburn", burn)
+    M.hud_update(player, burn)
+end
+
+function M.add_sunburn(player, change)
+    local burn = PPA.get_value(player, "sunburn_sunburn") + change
+    PPA.set_value(player, "sunburn_sunburn", burn)
+    M.hud_update(player, burn)
+end
+
+
+function M.get_burn_factor(player)
+    local name = player:get_player_name()
+    local pl = M.players[name] or {}
+    return pl.burn_factor
+end
+
+function M.set_burn_factor(player, factor)
+    local name = player:get_player_name()
+    local pl = M.players[name] or {}
+    pl.burn_factor = factor
+end
+
+
+function M.get_damage_factor(player)
+    local name = player:get_player_name()
+    local pl = M.players[name] or {}
+    return pl.damage_factor
+end
+
+function M.set_damage_factor(player, factor)
+    local name = player:get_player_name()
+    local pl = M.players[name] or {}
+    pl.damage_factor = factor
+end
+
+
+function M.get_heal_factor(player)
+    local name = player:get_player_name()
+    local pl = M.players[name] or {}
+    return pl.heal_factor
+end
+
+function M.set_heal_factor(player, factor)
+    local name = player:get_player_name()
+    local pl = M.players[name] or {}
+    pl.heal_factor = factor
+end
