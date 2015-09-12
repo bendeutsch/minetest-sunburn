@@ -34,24 +34,24 @@ sunburn = {
     config = {
         tick_time = 0.5,
         sunburn_for_light = {
-            [15] = 0.5,
-            [14] = 0.25,
-            [13] = -0.1,
-            [12] = -0.1,
-            [11] = -0.1,
+            [15] = 1.0,
+            [14] = 0.5,
+            [13] = -0.2,
+            [12] = -0.2,
+            [11] = -0.2,
             [10] = -0.2,
             [ 9] = -0.2,
-            [ 8] = -0.2,
-            [ 7] = -0.2,
-            [ 6] = -0.2,
-            [ 5] = -0.2,
-            [ 4] = -0.2,
-            [ 3] = -0.2,
-            [ 2] = -0.2,
-            [ 1] = -0.2,
-            [ 0] = -0.2,
+            [ 8] = -0.4,
+            [ 7] = -0.4,
+            [ 6] = -0.4,
+            [ 5] = -0.4,
+            [ 4] = -0.4,
+            [ 3] = -0.4,
+            [ 2] = -0.4,
+            [ 1] = -0.4,
+            [ 0] = -0.4,
         },
-        damage_per_sunburn = 0.02,
+        damage_per_sunburn = 0.05,
         sunburn_threshold = 0, -- it starts hurting after this
     },
 
@@ -148,7 +148,7 @@ minetest.register_globalstep(function(dtime)
 
             local burn = PPA.get_value(player, "sunburn_sunburn")
 
-            burn = burn + bps;
+            burn = burn + bps * C.tick_time;
             if burn <  0 then burn =  0 end
             if burn > 20 then burn = 20 end
             --print("New burn "..burn)
@@ -158,7 +158,9 @@ minetest.register_globalstep(function(dtime)
 
             if burn > C.sunburn_threshold  and minetest.setting_getbool("enable_damage") then
                 local burn_overrun = burn - C.sunburn_threshold
-                pl.pending_dmg = pl.pending_dmg + burn_overrun * C.damage_per_sunburn * pl.damage_factor
+                local dps = burn_overrun * C.damage_per_sunburn * pl.damage_factor
+                --print ("DPS: "..dps)
+                pl.pending_dmg = pl.pending_dmg + dps * C.tick_time
                 if pl.pending_dmg > 1.0 then
                     local dmg = math.floor(pl.pending_dmg)
                     --print("Deals "..dmg.." damage!")
@@ -166,7 +168,6 @@ minetest.register_globalstep(function(dtime)
                     player:set_hp( player:get_hp() - dmg )
                 end
             end
-
         end
     end
 end)
