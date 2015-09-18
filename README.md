@@ -3,7 +3,7 @@ Sunburn [sunburn]
 
 A Minetest mod where sunlight simply kills you directly
 
-Version: 0.2.0
+Version: 0.2.1
 
 License:
   Code: LGPL 2.1 (see included LICENSE file)
