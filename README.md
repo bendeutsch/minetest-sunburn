@@ -68,7 +68,7 @@ Dependencies
 Installation
 ------------
 
-Unzip the archive, rename the folder to to `bewarethedark` and
+Unzip the archive, rename the folder to to `sunburn` and
 place it in minetest/mods/
 
 (  Linux: If you have a linux system-wide installation place
