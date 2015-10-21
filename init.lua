@@ -30,30 +30,7 @@ USA
 
 sunburn = {
 
-    -- configuration
-    config = {
-        tick_time = 0.5,
-        sunburn_for_light = {
-            [15] = 1.0,
-            [14] = 0.5,
-            [13] = -0.2,
-            [12] = -0.2,
-            [11] = -0.2,
-            [10] = -0.2,
-            [ 9] = -0.2,
-            [ 8] = -0.4,
-            [ 7] = -0.4,
-            [ 6] = -0.4,
-            [ 5] = -0.4,
-            [ 4] = -0.4,
-            [ 3] = -0.4,
-            [ 2] = -0.4,
-            [ 1] = -0.4,
-            [ 0] = -0.4,
-        },
-        damage_per_sunburn = 0.05,
-        sunburn_threshold = 0, -- it starts hurting after this
-    },
+    -- configuration in sunburn.default.conf and related files
 
     -- per-player-stash (not persistent)
     players = {
@@ -71,6 +48,8 @@ sunburn = {
     time_next_tick = 0.0,
 }
 local M = sunburn
+
+dofile(minetest.get_modpath('sunburn')..'/configuration.lua')
 local C = M.config
 
 dofile(minetest.get_modpath('sunburn')..'/persistent_player_attributes.lua')
